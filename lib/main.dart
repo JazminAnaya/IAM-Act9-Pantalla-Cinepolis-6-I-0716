@@ -15,6 +15,15 @@ class AppCinepolis extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        // Esto asegura que el color del checkbox activo sea el azul de la app
+        checkboxTheme: CheckboxThemeData(
+          fillColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return Colors.blue.shade900; // Color cuando está seleccionado
+            }
+            return null; // Usa el color por defecto cuando no está seleccionado
+          }),
+        ),
       ),
       home: const MembresiaScreen(),
     );
@@ -43,7 +52,6 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if the name field should be enabled
     final bool isNombreEnabled = _selectedMembresia != 'No tengo membresia';
 
     return Scaffold(
@@ -67,7 +75,6 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
           children: [
             const SizedBox(height: 20),
             
-            // Título principal
             const Center(
               child: Text(
                 '¿Tienes membresía?\n¡Registrala!',
@@ -82,7 +89,6 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
             
             const SizedBox(height: 30),
             
-            // Campo de nombre titular
             const Text(
               'Nombre titular',
               style: TextStyle(
@@ -116,7 +122,6 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
             
             const SizedBox(height: 20),
             
-            // Tipos de membresía
             const Text(
               'Tipo de membresía',
               style: TextStyle(
@@ -127,7 +132,6 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
             ),
             const SizedBox(height: 8),
             
-            // Lista de membresías con radio buttons
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade300),
@@ -135,20 +139,24 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
               ),
               child: Column(
                 children: _tiposMembresia.map((tipo) {
-                  return RadioListTile<String>(
+                  return CheckboxListTile(
                     title: Text(tipo),
-                    value: tipo,
-                    groupValue: _selectedMembresia,
-                    onChanged: (value) {
+                    value: _selectedMembresia == tipo,
+                    onChanged: (bool? newValue) {
                       setState(() {
-                        _selectedMembresia = value;
-                        if (_selectedMembresia == 'No tengo membresia') {
-                          _nombreController.clear();
+                        if (newValue == true) {
+                          _selectedMembresia = tipo;
+                          if (tipo == 'No tengo membresia') {
+                            _nombreController.clear();
+                          }
+                        } else {
+                          // Permite deseleccionar si se hace clic en el mismo checkbox
+                          _selectedMembresia = null;
                         }
                       });
                     },
                     activeColor: Colors.blue.shade900,
-                    controlAffinity: ListTileControlAffinity.trailing, // Changed to trailing
+                    controlAffinity: ListTileControlAffinity.trailing,
                   );
                 }).toList(),
               ),
@@ -156,13 +164,10 @@ class _MembresiaScreenState extends State<MembresiaScreen> {
             
             const SizedBox(height: 30),
             
-            // Botón Siguiente
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Aquí puedes agregar la lógica para el botón siguiente
-                  // Por ahora solo muestra un mensaje
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Funcionalidad en desarrollo'),
